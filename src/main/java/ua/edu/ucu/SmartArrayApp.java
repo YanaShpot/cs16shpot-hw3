@@ -5,11 +5,12 @@ import ua.edu.ucu.functions.MyComparator;
 import ua.edu.ucu.functions.MyFunction;
 import ua.edu.ucu.functions.MyPredicate;
 
+import ua.edu.ucu.smartarr.*;
 public class SmartArrayApp {
 
     public static Integer[]
-            filterPositiveIntegersSortAndMultiplyBy2(Integer[] integers) {
-                
+    filterPositiveIntegersSortAndMultiplyBy2(Integer[] integers) {
+
         MyPredicate pr = new MyPredicate() {
             @Override
             public boolean test(Object t) {
@@ -31,29 +32,40 @@ public class SmartArrayApp {
             }
         };
 
-        // Input: [-1, 2, 0, 1, -5, 3]
+// Input: [-1, 2, 0, 1, -5, 3]
         SmartArray sa = new BaseArray(integers);
 
         sa = new FilterDecorator(sa, pr); // Result: [2, 1, 3];
         sa = new SortDecorator(sa, cmp); // Result: [1, 2, 3]
         sa = new MapDecorator(sa, func); // Result: [2, 4, 6]
 
-        // Alternative
-//        sa = new MapDecorator(
-//                    new SortDecorator(
-//                        new FilterDecorator(sa, pr),
-//                    cmp),
-//                func);
+// Alternative
+// sa = new MapDecorator(
+// new SortDecorator(
+// new FilterDecorator(sa, pr),
+// cmp),
+// func);
         Object[] result = sa.toArray();
         return Arrays.copyOf(result, result.length, Integer[].class);
     }
 
     public static String[]
-            findDistinctStudentNamesFrom2ndYearWithGPAgt4AndOrderedBySurname(Student[] students) {
+    findDistinctStudentNamesFrom2ndYearWithGPAgt4AndOrderedBySurname(Student[] students) {
 
-        // Hint: to convert Object[] to String[] - use the following code
-        //Object[] result = studentSmartArray.toArray();
-        //return Arrays.copyOf(result, result.length, String[].class);
-        return null;
+
+        MyPredicate pr = student -> ((Student)student).getGPA() >= 4.0 && ((Student)student).getYear() == 2;
+
+        MyComparator cmp = (student1, student2) -> ((Student)student1).getSurname().compareTo(((Student)student2).getSurname());
+
+        MyFunction func = st -> ((Student) st).getSurname() + " " + ((Student) st).getName();
+
+        SmartArray studentSmartArray = new BaseArray(students);
+        studentSmartArray = new DistinctDecorator(studentSmartArray);
+        studentSmartArray = new FilterDecorator(studentSmartArray , pr);
+        studentSmartArray = new SortDecorator(studentSmartArray , cmp);
+        studentSmartArray = new MapDecorator(studentSmartArray , func);
+
+        Object[] result = studentSmartArray.toArray();
+        return Arrays.copyOf(result, result.length, String[].class);
     }
 }
